@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LumiTech · Shop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --g1: #00ff88;
+            --g2: #00cc66;
+            --g3: #008844;
+            --bg: #050f08;
+            --card: #0a1a0e;
+            --border: #1a3a22;
+            --text: #c8ffd8;
+            --dim: #6aaa7a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Exo 2', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            padding: 1.2rem;
+            gap: 1.2rem;
+        }
+        .sidebar {
+            width: 200px; flex-shrink: 0; position: sticky; top: 1.2rem; height: fit-content;
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+            padding: 1.2rem 0.8rem; display: flex; flex-direction: column; gap: 0.4rem;
+        }
+        .sidebar-title {
+            font-family: 'Rajdhani', sans-serif; font-size: 0.7rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 2px; color: var(--g3);
+            text-align: center; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border); margin-bottom: 0.2rem;
+        }
+        .sidebar-btn {
+            display: flex; align-items: center; gap: 0.5rem; width: 100%;
+            background: transparent; border: 1px solid var(--border); border-radius: 50px;
+            padding: 0.6rem 0.9rem; color: var(--dim); font-family: 'Exo 2', sans-serif;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s; text-align: left;
+        }
+        .sidebar-btn:hover, .sidebar-btn.active {
+            background: rgba(0,255,100,0.08); border-color: var(--g1); color: var(--g1);
+        }
+        .main-content { flex: 1; min-width: 0; }
+        .shop-wrapper { max-width: 960px; width: 100%; margin: 0 auto; }
+        .neon-header { text-align: center; margin-bottom: 2.5rem; padding-top: 0.5rem; }
+        .neon-header h1 {
+            font-family: 'Rajdhani', sans-serif; font-size: 2.6rem; font-weight: 700;
+            letter-spacing: 4px; text-transform: uppercase; color: var(--g1);
+            text-shadow: 0 0 20px rgba(0,255,136,0.5);
+        }
+        .category-section { margin-bottom: 2.5rem; scroll-margin-top: 1.5rem; }
+        .category-divider { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.4rem; }
+        .category-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--g2)); }
+        .category-line.right { background: linear-gradient(90deg, var(--g2), transparent); }
+        .category-title {
+            font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+            text-transform: uppercase; color: var(--g1); letter-spacing: 2px;
+            padding: 0.2rem 1.2rem; border-radius: 50px; border: 1px solid var(--g3);
+            background: rgba(0,255,100,0.05); white-space: nowrap; flex-shrink: 0;
+        }
+        .category-title.sale-title { color: #ff4444; border-color: #ff4444; background: rgba(255,50,50,0.05); }
+        .category-line.sale { background: linear-gradient(90deg, transparent, #ff4444); }
+        .category-line.sale.right { background: linear-gradient(90deg, #ff4444, transparent); }
+        .tile-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; }
+        .tile-grid.col3 { grid-template-columns: repeat(3, 1fr); }
+        .tile {
+            background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+            padding: 1.4rem 1.2rem 1.6rem; display: flex; flex-direction: column;
+            transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+            will-change: transform; position: relative;
+        }
+        .tile:hover { border-color: var(--g2); transform: translateY(-6px); box-shadow: 0 16px 32px rgba(0,200,80,0.15); }
+        .tile.sale-tile { border-color: rgba(255,80,80,0.3); }
+        .tile.sale-tile:hover { border-color: #ff4444; box-shadow: 0 16px 32px rgba(255,50,50,0.2); }
+        .tile.coming-soon { opacity: 0.55; pointer-events: none; filter: grayscale(0.5); }
+        .coming-soon-label {
+            position: absolute; top: 1rem; right: 1rem;
+            background: rgba(255,200,0,0.15); border: 1px solid #ffcc00; color: #ffcc00;
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.75rem;
+            letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 50px;
+        }
+        .sale-badge {
+            position: absolute; top: 1rem; right: 1rem; background: #ff3333; color: #fff;
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.9rem;
+            letter-spacing: 1px; padding: 3px 12px; border-radius: 50px;
+            box-shadow: 0 0 10px rgba(255,50,50,0.5);
+        }
+        .tile-title {
+            font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+            color: var(--g1); margin-bottom: 0.6rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border);
+        }
+        .tile-price { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; color: #fff; margin-bottom: 1rem; }
+        .tile-price span { font-size: 0.95rem; color: var(--dim); font-weight: 500; }
+        .tile-price .old-price { font-size: 1rem; color: #888; text-decoration: line-through; margin-right: 0.4rem; font-weight: 400; }
+        .tile-price .new-price { color: #ff6666; }
+        .drop-info {
+            background: rgba(0,40,20,0.5); border: 1px solid var(--border); border-radius: 16px;
+            padding: 0.8rem 1rem; margin-bottom: 1.2rem; list-style: none; font-size: 0.88rem; color: var(--text);
+        }
+        .drop-info li { display: flex; align-items: flex-start; gap: 6px; padding: 3px 0; font-weight: 500; line-height: 1.4; }
+        .drop-info li::before { content: ">"; color: var(--g2); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+        .buy-button {
+            background: transparent; border: 1.5px solid var(--g2); color: var(--g1);
+            font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.05rem;
+            text-transform: uppercase; letter-spacing: 1.5px; padding: 0.65rem 0;
+            border-radius: 50px; margin-top: auto; cursor: pointer;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+        .buy-button:hover { background: var(--g2); color: #030f07; box-shadow: 0 0 20px rgba(0,200,80,0.4); }
+        .buy-button.sale-btn { border-color: #ff4444; color: #ff6666; }
+        .buy-button.sale-btn:hover { background: #ff4444; color: #fff; box-shadow: 0 0 20px rgba(255,50,50,0.4); }
+        .talisman-badge {
+            display: inline-block; font-size: 0.72rem; font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+            padding: 2px 10px; border-radius: 50px; margin-bottom: 0.5rem;
+        }
+        .badge-common { background: rgba(150,150,150,0.15); border: 1px solid #666; color: #aaa; }
+        .badge-rare { background: rgba(0,100,255,0.1); border: 1px solid #336; color: #88aaff; }
+        .badge-epic { background: rgba(150,0,255,0.1); border: 1px solid #604; color: #cc88ff; }
+        .badge-legendary { background: rgba(255,150,0,0.1); border: 1px solid #640; color: #ffcc44; }
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,5,2,0.92); backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-card {
+            background: var(--card); border: 2px solid var(--g3); border-radius: 32px;
+            max-width: 460px; width: 90%; padding: 2rem;
+            box-shadow: 0 0 40px rgba(0,200,80,0.2); animation: popIn 0.25s ease;
+        }
+        @keyframes popIn { from { transform: scale(0.88); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-card h2 {
+            font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; text-align: center;
+            color: var(--g1); margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border);
+        }
+        .modal-disclaimer {
+            background: rgba(255,40,40,0.06); border: 1.5px solid #ff4444; border-radius: 16px;
+            padding: 1rem 1.2rem; margin-bottom: 1.6rem; color: #ffcccc; font-size: 0.9rem;
+        }
+        .modal-disclaimer .disc-title { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; color: #ff6666; margin-bottom: 0.8rem; letter-spacing: 1px; }
+        .disc-rows { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.8rem; }
+        .disc-row { display: flex; align-items: center; gap: 0.7rem; background: rgba(255,255,255,0.04); border-radius: 10px; padding: 0.45rem 0.8rem; font-size: 0.88rem; }
+        .disc-row .label { color: #ff8888; font-weight: 700; font-family: 'Rajdhani', sans-serif; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; min-width: 70px; }
+        .disc-row .value { color: #ffe0e0; font-weight: 600; }
+        .disc-rules { font-size: 0.82rem; color: #ffaaaa; line-height: 1.6; border-top: 1px solid rgba(255,80,80,0.2); padding-top: 0.7rem; }
+        .disc-support { margin-top: 0.6rem; font-size: 0.82rem; color: #ffaaaa; }
+        .disc-support a { color: #ff8888; text-decoration: none; font-weight: 700; border-bottom: 1px dotted #ff6666; }
+        .modal-actions { display: flex; flex-direction: column; gap: 0.7rem; }
+        .modal-submit, .modal-close {
+            width: 100%; padding: 0.85rem; border-radius: 50px; font-family: 'Rajdhani', sans-serif;
+            font-weight: 700; font-size: 1.05rem; letter-spacing: 1px; border: none; cursor: pointer; transition: 0.2s;
+        }
+        .modal-submit { background: var(--g2); color: #030f07; }
+        .modal-submit:hover { background: var(--g1); box-shadow: 0 0 20px rgba(0,255,100,0.4); }
+        .modal-close { background: transparent; color: var(--dim); border: 1.5px solid var(--border); }
+        .modal-close:hover { border-color: var(--dim); color: var(--text); }
+        .currency-note {
+            text-align: center; margin-top: 2rem; color: var(--dim); font-size: 0.88rem;
+            padding: 0.8rem 1.2rem; border: 1px solid var(--border); border-radius: 50px; background: rgba(0,20,10,0.5);
+        }
+        .currency-note a { color: var(--g1); text-decoration: none; font-weight: 600; }
+        @media (max-width: 900px) { .tile-grid.col3 { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 720px) {
+            body { flex-direction: column; padding: 0.8rem; gap: 0.8rem; }
+            .sidebar { width: 100%; position: static; flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 0.7rem; gap: 0.35rem; border-radius: 16px; }
+            .sidebar-title { display: none; }
+            .sidebar-btn { font-size: 0.78rem; padding: 0.45rem 0.75rem; }
+            .tile-grid, .tile-grid.col3 { grid-template-columns: 1fr; gap: 1rem; }
+            .neon-header h1 { font-size: 1.8rem; }
+            .category-title { font-size: 1.1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<aside class="sidebar">
+    <div class="sidebar-title">Категории</div>
+    <button class="sidebar-btn" data-target="sale">Скидки</button>
+    <button class="sidebar-btn" data-target="cases">Кейсы</button>
+    <button class="sidebar-btn" data-target="privileges">Привилегии</button>
+    <button class="sidebar-btn" data-target="talismans">Талисманы</button>
+    <button class="sidebar-btn" data-target="exclusive">Exclusive</button>
+    <button class="sidebar-btn" data-target="packs">Паки</button>
+</aside>
+
+<main class="main-content">
+    <div class="shop-wrapper">
+        <div class="neon-header"><h1>LumiTech DonateShop</h1></div>
+
+        <!-- СКИДКИ -->
+        <section class="category-section" id="sale">
+            <div class="category-divider">
+                <div class="category-line sale"></div>
+                <span class="category-title sale-title">Скидки до 70%</span>
+                <div class="category-line sale right"></div>
+            </div>
+            <div class="tile-grid col3">
+                <div class="tile sale-tile" data-service="God Talisman" data-price="30">
+                    <span class="sale-badge">-70%</span>
+                    <div class="tile-title">God Talisman</div>
+                    <div class="tile-price"><span class="old-price">100 руб.</span><span class="new-price">30 руб.</span></div>
+                    <button class="buy-button sale-btn">Купить</button>
+                </div>
+                <div class="tile sale-tile" data-service="Элита" data-price="17">
+                    <span class="sale-badge">-50%</span>
+                    <div class="tile-title">Элита</div>
+                    <div class="tile-price"><span class="old-price">24 руб.</span><span class="new-price">17 руб.</span></div>
+                    <button class="buy-button sale-btn">Купить</button>
+                </div>
+                <div class="tile sale-tile" data-service="Shadow Case" data-price="25">
+                    <span class="sale-badge">-40%</span>
+                    <div class="tile-title">Shadow Case</div>
+                    <div class="tile-price"><span class="old-price">35 руб.</span><span class="new-price">25 руб.</span></div>
+                    <button class="buy-button sale-btn">Купить</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- КЕЙСЫ -->
+        <section class="category-section" id="cases">
+            <div class="category-divider">
+                <div class="category-line"></div><span class="category-title">Кейсы</span><div class="category-line right"></div>
+            </div>
+            <div class="tile-grid">
+                <div class="tile" data-service="Shadow Case" data-price="35">
+                    <div class="tile-title">Shadow Case</div>
+                    <ul class="drop-info">
+                        <li>Неуязвимость II (1ч) — 35%</li>
+                        <li>Меч тьмы (анбрейк) — 20%</li>
+                        <li>500 донат-монет — 25%</li>
+                        <li>Плащ Фантом — 15%</li>
+                        <li>Легендарный питомец — 5%</li>
+                    </ul>
+                    <button class="buy-button">Купить за 35 руб.</button>
+                </div>
+                <div class="tile" data-service="Neon Crate" data-price="52">
+                    <div class="tile-title">Neon Crate</div>
+                    <ul class="drop-info">
+                        <li>Неон-гайд (навсегда) — 30%</li>
+                        <li>1000 кубов опыта — 30%</li>
+                        <li>Кибер-крылья — 20%</li>
+                        <li>Чары Свечение — 15%</li>
+                        <li>Титул LumiTech — 5%</li>
+                    </ul>
+                    <button class="buy-button">Купить за 52 руб.</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПРИВИЛЕГИИ -->
+        <section class="category-section" id="privileges">
+            <div class="category-divider">
+                <div class="category-line"></div><span class="category-title">Привилегии</span><div class="category-line right"></div>
+            </div>
+            <div class="tile-grid col3">
+                <div class="tile" data-service="Барон" data-price="2"><div class="tile-title">Барон</div><div class="tile-price">2 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Страж" data-price="3"><div class="tile-title">Страж</div><div class="tile-price">3 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Герой" data-price="4"><div class="tile-title">Герой</div><div class="tile-price">4 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Аспид" data-price="5"><div class="tile-title">Аспид</div><div class="tile-price">5 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Сквид" data-price="10"><div class="tile-title">Сквид</div><div class="tile-price">10 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Глава" data-price="15"><div class="tile-title">Глава</div><div class="tile-price">15 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Элита" data-price="24"><div class="tile-title">Элита</div><div class="tile-price">24 <span>руб.</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Титан + 500 токенов" data-price="35"><div class="tile-title">Титан</div><div class="tile-price">35 <span>руб. + 500 токенов</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Принц + 1000 токенов" data-price="55"><div class="tile-title">Принц</div><div class="tile-price">55 <span>руб. + 1000 токенов</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Князь + 3000 токенов" data-price="75"><div class="tile-title">Князь</div><div class="tile-price">75 <span>руб. + 3000 токенов</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Герцог + 6000 токенов" data-price="148"><div class="tile-title">Герцог</div><div class="tile-price">148 <span>руб. + 6000 токенов</span></div><button class="buy-button">Купить</button></div>
+                <div class="tile" data-service="Д.Хелпер + 30000 токенов" data-price="400"><div class="tile-title">Д.Хелпер</div><div class="tile-price">400 <span>руб. + 30000 токенов</span></div><button class="buy-button">Купить</button></div>
+            </div>
+        </section>
+
+        <!-- ТАЛИСМАНЫ -->
+        <section class="category-section" id="talismans">
+            <div class="category-divider">
+                <div class="category-line"></div><span class="category-title">Талисманы</span><div class="category-line right"></div>
+            </div>
+            <div class="tile-grid col3">
+                <div class="tile" data-service="Health Talisman" data-price="15">
+                    <span class="talisman-badge badge-common">Обычный</span>
+                    <div class="tile-title">Health Talisman</div>
+                    <ul class="drop-info"><li>+10 хп (5 сердец)</li><li>Рука / оффхенд</li></ul>
+                    <button class="buy-button">Купить за 15 руб.</button>
+                </div>
+                <div class="tile" data-service="Сфера Гринча" data-price="12">
+                    <span class="talisman-badge badge-common">Обычный</span>
+                    <div class="tile-title">Сфера Гринча</div>
+                    <ul class="drop-info"><li>+3% скорость движения</li><li>Рука / оффхенд</li></ul>
+                    <button class="buy-button">Купить за 12 руб.</button>
+                </div>
+                <div class="tile" data-service="Сфера Эльфа" data-price="18">
+                    <span class="talisman-badge badge-rare">Редкий</span>
+                    <div class="tile-title">Сфера Эльфа</div>
+                    <ul class="drop-info"><li>+10 брони</li><li>Рука</li></ul>
+                    <button class="buy-button">Купить за 18 руб.</button>
+                </div>
+                <div class="tile" data-service="Сфера Санты" data-price="20">
+                    <span class="talisman-badge badge-rare">Редкий</span>
+                    <div class="tile-title">Сфера Санты</div>
+                    <ul class="drop-info"><li>+300% скорость атаки</li><li>Рука / оффхенд</li></ul>
+                    <button class="buy-button">Купить за 20 руб.</button>
+                </div>
+                <div class="tile" data-service="Explorer Talisman" data-price="13">
+                    <span class="talisman-badge badge-common">Обычный</span>
+                    <div class="tile-title">Explorer Talisman</div>
+                    <ul class="drop-info"><li>+1000% удача (лут)</li><li>Рука / оффхенд</li></ul>
+                    <button class="buy-button">Купить за 13 руб.</button>
+                </div>
+                <div class="tile" data-service="God Talisman" data-price="100">
+                    <span class="talisman-badge badge-legendary">Легендарный</span>
+                    <div class="tile-title">God Talisman</div>
+                    <ul class="drop-info"><li>+20 хп, +400% атака</li><li>+50% защита от отброса</li><li>+4 урон атаки</li></ul>
+                    <button class="buy-button">Купить за 100 руб.</button>
+                </div>
+                <div class="tile" data-service="Ninja Sword" data-price="75">
+                    <span class="talisman-badge badge-epic">Эпический</span>
+                    <div class="tile-title">Ninja Sword</div>
+                    <ul class="drop-info"><li>+20 хп, +200% атака</li><li>+6 урон атаки</li></ul>
+                    <button class="buy-button">Купить за 75 руб.</button>
+                </div>
+                <div class="tile" data-service="Speedster Boots" data-price="35">
+                    <span class="talisman-badge badge-rare">Редкий</span>
+                    <div class="tile-title">Speedster Boots</div>
+                    <ul class="drop-info"><li>+20% скорость (ноги)</li><li>+4 брони</li></ul>
+                    <button class="buy-button">Купить за 35 руб.</button>
+                </div>
+                <div class="tile" data-service="Tank Chestplate" data-price="45">
+                    <span class="talisman-badge badge-epic">Эпический</span>
+                    <div class="tile-title">Tank Chestplate</div>
+                    <ul class="drop-info"><li>+8 брони (грудь)</li><li>+5 прочности брони</li></ul>
+                    <button class="buy-button">Купить за 45 руб.</button>
+                </div>
+                <div class="tile" data-service="Iron Armored Elytra" data-price="30">
+                    <span class="talisman-badge badge-rare">Редкий</span>
+                    <div class="tile-title">Iron Elytra</div>
+                    <ul class="drop-info"><li>+6 брони, Защита II</li></ul>
+                    <button class="buy-button">Купить за 30 руб.</button>
+                </div>
+                <div class="tile" data-service="Diamond Armored Elytra" data-price="50">
+                    <span class="talisman-badge badge-epic">Эпический</span>
+                    <div class="tile-title">Diamond Elytra</div>
+                    <ul class="drop-info"><li>+8 брони, Защита II</li><li>+2 прочности</li></ul>
+                    <button class="buy-button">Купить за 50 руб.</button>
+                </div>
+                <div class="tile" data-service="Netherite Armored Elytra" data-price="80">
+                    <span class="talisman-badge badge-legendary">Легендарный</span>
+                    <div class="tile-title">Netherite Elytra</div>
+                    <ul class="drop-info"><li>+8 брони, +3 прочности</li><li>+10% защита от отброса</li></ul>
+                    <button class="buy-button">Купить за 80 руб.</button>
+                </div>
+                <div class="tile" data-service="Dark Talisman" data-price="28">
+                    <span class="talisman-badge badge-epic">Эпический</span>
+                    <div class="tile-title">Dark Talisman</div>
+                    <ul class="drop-info"><li>+300% скорость атаки</li><li>Рука / оффхенд</li></ul>
+                    <button class="buy-button">Купить за 28 руб.</button>
+                </div>
+                <div class="tile" data-service="Skeleton King Talisman" data-price="40">
+                    <span class="talisman-badge badge-epic">Эпический</span>
+                    <div class="tile-title">Skeleton King</div>
+                    <ul class="drop-info"><li>+10% скорость, +5 брони</li><li>Голова</li></ul>
+                    <button class="buy-button">Купить за 40 руб.</button>
+                </div>
+                <div class="tile" data-service="Developer Talisman" data-price="60">
+                    <span class="talisman-badge badge-legendary">Легендарный</span>
+                    <div class="tile-title">Developer Talisman</div>
+                    <ul class="drop-info"><li>+10% скорость, +200% атака</li><li>+6 брони (голова)</li></ul>
+                    <button class="buy-button">Купить за 60 руб.</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXCLUSIVE -->
+        <section class="category-section" id="exclusive">
+            <div class="category-divider">
+                <div class="category-line"></div><span class="category-title">Exclusive</span><div class="category-line right"></div>
+            </div>
+            <div class="tile-grid">
+                <div class="tile coming-soon">
+                    <span class="coming-soon-label">Скоро!</span>
+                    <div class="tile-title">Dragon Pet</div>
+                    <ul class="drop-info">
+                        <li>Летающий дракон — 40%</li>
+                        <li>Огненное дыхание — 30%</li>
+                        <li>+15% урона — 20%</li>
+                        <li>Уникальный скин — 10%</li>
+                    </ul>
+                    <button class="buy-button">Скоро...</button>
+                </div>
+                <div class="tile coming-soon">
+                    <span class="coming-soon-label">Скоро!</span>
+                    <div class="tile-title">Ender Cape</div>
+                    <ul class="drop-info">
+                        <li>Частицы эндера — 45%</li>
+                        <li>Телепортация на 10 блоков — 25%</li>
+                        <li>Устойчивость к урону — 20%</li>
+                        <li>Титул Ender — 10%</li>
+                    </ul>
+                    <button class="buy-button">Скоро...</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ПАКИ -->
+        <section class="category-section" id="packs">
+            <div class="category-divider">
+                <div class="category-line"></div><span class="category-title">Паки</span><div class="category-line right"></div>
+            </div>
+            <div class="tile-grid">
+                <div class="tile coming-soon">
+                    <span class="coming-soon-label">Скоро!</span>
+                    <div class="tile-title">Chroma Pack</div>
+                    <ul class="drop-info">
+                        <li>Частицы Изумрудный дождь</li><li>Лиса-питомец</li>
+                        <li>Эмоция Neon dance</li><li>Раскраска на броню</li><li>Аура Киберпанк</li>
+                    </ul>
+                    <button class="buy-button">Скоро...</button>
+                </div>
+                <div class="tile coming-soon">
+                    <span class="coming-soon-label">Скоро!</span>
+                    <div class="tile-title">Resource Pack</div>
+                    <ul class="drop-info">
+                        <li>3D модели оружия</li><li>Неоновая броня</li>
+                        <li>Кастомные звуки</li><li>Эксклюзивный шейдер</li>
+                    </ul>
+                    <button class="buy-button">Скоро...</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="currency-note">
+            Цены фиксированы в рублях (RUB) &middot; Поддержка: <a href="https://t.me/the_h3rcul3ss" target="_blank">@the_h3rcul3ss</a>
+        </div>
+    </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-card">
+        <h2 id="modalServiceName">Услуга</h2>
+        <div class="modal-disclaimer">
+            <div class="disc-title">! DISCLAIMER</div>
+            <div class="disc-rows">
+                <div class="disc-row"><span class="label">Ник</span><span class="value">the_h3rcul3ss_</span></div>
+                <div class="disc-row"><span class="label">Стоимость</span><span class="value" id="disc-price">—</span></div>
+                <div class="disc-row"><span class="label">Услуга</span><span class="value" id="disc-service">—</span></div>
+            </div>
+            <div class="disc-rules">
+                - Укажите ник точно как в игре.<br>
+                - Сумма фиксирована. При неверной оплате возврат невозможен.<br>
+                - Ожидание выдачи — максимум 1 час.
+            </div>
+            <div class="disc-support">Поддержка: <a href="https://t.me/the_h3rcul3ss" target="_blank">@the_h3rcul3ss</a></div>
+        </div>
+        <div class="modal-actions">
+            <button class="modal-submit" id="submitBuy">Принять и перейти к оплате</button>
+            <button class="modal-close" id="closeModalBtn">Закрыть</button>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    var modal = document.getElementById('modalOverlay');
+    var closeBtn = document.getElementById('closeModalBtn');
+    var submitBtn = document.getElementById('submitBuy');
+    var REDIRECT = "https://dalink.to/the_h3rcul3ss_";
+    document.querySelectorAll('.buy-button').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            var tile = e.currentTarget.closest('.tile');
+            if (!tile || tile.classList.contains('coming-soon')) return;
+            var service = tile.dataset.service || 'Услуга';
+            var price = tile.dataset.price || '0';
+            document.getElementById('modalServiceName').textContent = service;
+            document.getElementById('disc-price').textContent = price + ' руб.';
+            document.getElementById('disc-service').textContent = service;
+            modal.classList.add('active');
+        });
+    });
+    closeBtn.addEventListener('click', function() { modal.classList.remove('active'); });
+    modal.addEventListener('click', function(e) { if (e.target === modal) modal.classList.remove('active'); });
+    submitBtn.addEventListener('click', function() { window.location.href = REDIRECT; });
+    var sidebarBtns = document.querySelectorAll('.sidebar-btn');
+    sidebarBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            sidebarBtns.forEach(function(b) { b.classList.remove('active'); });
+            this.classList.add('active');
+            var el = document.getElementById(this.dataset.target);
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+})();
+</script>
+</body>
+</html>
